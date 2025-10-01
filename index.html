@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IKE Protocol Virtual Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS from your provided structure, enhanced for the cyber aesthetic */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Define custom variables for theme consistency */
+        :root {
+            --color-primary: #34D399; /* Green/Cyan for success/active states */
+            --color-secondary: #F06292; /* Magenta for action/error states */
+            --color-bg-dark: #0a0a0a;
+            --color-card-bg: #1a1a1a;
+            --color-border: #404040;
+            --color-text-light: #e5e5e5;
+            --color-text-dim: #a0a0a0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--color-bg-dark);
+            color: var(--color-text-light);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(52, 211, 153, 0.4);
+        }
+
+        .hero p {
+            color: var(--color-text-dim);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: var(--color-secondary);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(240, 98, 146, 0.4);
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #e91e63;
+            box-shadow: 0 0 25px rgba(240, 98, 146, 0.7);
+        }
+
+        .card {
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-primary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 0 30px rgba(52, 211, 153, 0.2);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .controls h2 {
+            font-size: 1.25rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #059669;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+        }
+
+        .btn-success:disabled {
+            background: #4a4a4a;
+            cursor: not-allowed;
+        }
+
+        .btn-reset {
+            background: transparent;
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-reset:hover {
+            background: rgba(52, 211, 153, 0.1);
+        }
+
+        .status {
+            background: #2a2a2a;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #404040;
+            margin-bottom: 20px;
+        }
+
+        .status span {
+            color: var(--color-primary);
+        }
+
+        .peers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .peers {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .peer {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #404040;
+            box-shadow: inset 0 0 5px rgba(52, 211, 153, 0.3); /* Subtle internal glow */
+        }
+
+        .peer h3 {
+            color: var(--color-primary);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .peer-field {
+            margin-bottom: 10px;
+        }
+
+        .peer-field label {
+            display: block;
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .peer-field input {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #404040;
+            color: var(--color-text-light);
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto; /* Allow horizontal scrolling for long keys */
+        }
+
+        .messages {
+            margin-bottom: 20px;
+        }
+
+        .arrow {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            opacity: 0.4;
+            transition: all 0.3s;
+            color: var(--color-text-light);
+        }
+
+        .arrow.active {
+            opacity: 1;
+            background: linear-gradient(90deg, var(--color-primary)20, var(--color-secondary)20);
+            border-left: 3px solid var(--color-primary);
+        }
+
+        .console {
+            background: #000;
+            border: 1px solid var(--color-primary);
+            border-radius: 8px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: var(--color-primary);
+            line-height: 1.4;
+        }
+
+        .console-line {
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="grid">
+            <!-- Left Column: Hero and Explanation -->
+            <div class="hero">
+                <h1>🛡️ IKE Protocol Virtual Lab</h1>
+                <p>
+                    Explore the Internet Key Exchange (IKE) protocol (Phase 1, Aggressive Mode) step-by-step. 
+                    This simulation demonstrates Diffie-Hellman (DH) key exchange, key derivation (HKDF), and 
+                    Pre-Shared Key (PSK) authentication, which establishes a secure tunnel for IPsec communication.
+                </p>
+                <button class="btn">Protocol Documentation →</button>
+            </div>
+
+            <!-- Right Column: Interactive Simulation -->
+            <div class="card">
+                <!-- Controls -->
+                <div class="controls">
+                    <h2>IKE Phase 1 Simulation</h2>
+                    <div class="btn-group">
+                        <button id="step-button" class="btn-success">Start Handshake</button>
+                        <button id="reset-button" class="btn-reset">↻</button>
+                    </div>
+                </div>
+
+                <div id="protocol-status" class="status">
+                    Status: <span id="status-text">Ready to initiate handshake</span>
+                </div>
+
+                <!-- Peer Panels -->
+                <div class="peers">
+                    <div class="peer">
+                        <h3>Peer A (Initiator)</h3>
+                        <div class="peer-field">
+                            <label>Identity (ID_A)</label>
+                            <input type="text" id="id-a" value="192.168.1.10" readonly>
+                        </div>
+                        <div class="peer-field">
+                            <label>DH Private Key (x)</label>
+                            <input type="text" id="dh-private-a" readonly>
+                        </div>
+                        <div class="peer-field">
+                            <label>DH Public Value (g^x)</label>
+                            <input type="text" id="dh-public-a" readonly>
+                        </div>
+                        <div class="peer-field">
+                            <label>Derived IKE Key (SKEYID_a)</label>
+                            <input type="text" id="ike-sa-a" readonly>
+                        </div>
+                    </div>
+
+                    <div class="peer">
+                        <h3>Peer B (Responder)</h3>
+                        <div class="peer-field">
+                            <label>Identity (ID_B)</label>
+                            <input type="text" id="id-b" value="192.168.1.20" readonly>
+                        </div>
+                        <div class="peer-field">
+                            <label>DH Private Key (y)</label>
+                            <input type="text" id="dh-private-b" readonly>
+                        </div>
+                        <div class="peer-field">
+                            <label>DH Public Value (g^y)</label>
+                            <input type="text" id="dh-public-b" readonly>
+                        </div>
+                        <div class="peer-field">
+                            <label>Derived IKE Key (SKEYID_a)</label>
+                            <input type="text" id="ike-sa-b" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Message Flow -->
+                <div class="messages">
+                    <div id="msg-1-arrow" class="arrow">→ Message 1: Peer A → Peer B (SA, g^x, Nonce A)</div>
+                    <div id="msg-2-arrow" class="arrow">← Message 2: Peer B → Peer A (SA, g^y, Nonce B, Auth H_B)</div>
+                    <div id="msg-3-arrow" class="arrow">→ Message 3: Peer A → Peer B (Auth H_A)</div>
+                </div>
+
+                <!-- Console -->
+                <div id="console" class="console"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INTEGRATED JAVASCRIPT LOGIC (Connects to Python Backend) -->
+    <script>
+        // --- Configuration ---
+        // MUST match the host and port of your running Python Flask server
+        const API_URL = 'http://127.0.0.1:5000/api'; 
+        
+        // --- UI Elements (Declared using let to be assigned safely inside initializeSimulation) ---
+        let stepButton;
+        let resetButton;
+        let consoleEl;
+        let statusText;
+
+        // Peer Value Inputs
+        let peerA_elements = {};
+        let peerB_elements = {};
+
+        // Message Flow Arrows
+        let msgArrows = {};
+
+        // --- State and Utility Functions ---
+        let currentStep = 0; // 0: Initialized, 1: M1 Sent, 2: M2 Sent, 3: SA Established
+
+        function addLog(message, isError = false) {
+            const time = new Date().toLocaleTimeString();
+            const line = document.createElement('div');
+            line.className = 'console-line';
+            line.style.color = isError ? 'var(--color-secondary)' : 'var(--color-primary)';
+            line.textContent = `[${time}] ${message}`;
+            consoleEl.appendChild(line);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function setUIState(step, statusMessage, buttonText, buttonDisabled = false) {
+            currentStep = step;
+            statusText.innerHTML = statusMessage;
+            stepButton.textContent = buttonText;
+            stepButton.disabled = buttonDisabled;
+            resetButton.disabled = false;
+
+            // Update message flow visualization
+            msgArrows[1].classList.toggle('active', currentStep >= 1);
+            msgArrows[2].classList.toggle('active', currentStep >= 2);
+            msgArrows[3].classList.toggle('active', currentStep >= 3);
+        }
+
+        function updatePeerDisplay(peer, data) {
+            if (data.private_key_display) {
+                peer.dhPrivate.value = data.private_key_display;
+            }
+            if (data.public_key_display) {
+                peer.dhPublic.value = data.public_key_display;
+            }
+            if (data.SKEYID_display) {
+                peer.ikeSaKey.value = data.SKEYID_display;
+            }
+        }
+
+        async function fetchData(endpoint, method = 'POST') {
+            try {
+                const response = await fetch(`${API_URL}/${endpoint}`, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API Error: ${errorData.error || response.statusText}`);
+                }
+                return await response.json();
+            } catch (error) {
+                addLog(`CRITICAL ERROR: ${error.message}. Is the Python server running on ${API_URL}?`, true);
+                setUIState(0, '<span style="color:var(--color-secondary);">Server connection failed.</span>', 'Retry', false);
+                throw error;
+            }
+        }
+
+        // --- IKE Protocol Steps ---
+
+        async function handleProtocolStep() {
+            stepButton.disabled = true; // Disable during processing
+
+            try {
+                if (currentStep === 0) {
+                    // Step 0: Start and Reset (Calls API to initialize nonces/IDs)
+                    await fetchData('start');
+                    await handleM1();
+                } else if (currentStep === 1) {
+                    // Step 1: M1 Sent, waiting for M2
+                    await handleM2();
+                } else if (currentStep === 2) {
+                    // Step 2: M2 Sent, waiting for M3
+                    await handleM3();
+                } else if (currentStep === 3) {
+                    // Protocol Complete
+                    addLog("IKE Phase 1 complete. SA Established!");
+                    return;
+                }
+            } catch (e) {
+                // Error handling done inside fetchData
+                console.error(e);
+            } finally {
+                // Re-enable button if not complete (step < 3)
+                if (currentStep < 3) {
+                    stepButton.disabled = false;
+                }
+            }
+        }
+
+        // Message 1 (A -> B)
+        async function handleM1() {
+            addLog('--- IKE Phase 1 Start (Aggressive Mode) ---');
+            addLog('Peer A: Generating DH keys and Nonce...');
+            
+            const data = await fetchData('step1_m1');
+            
+            updatePeerDisplay(peerA_elements, data);
+            addLog(`[A] DH Private Key generated (x): ${data.private_key_display}`);
+            addLog(`[A] DH Public Value computed (g^x): ${data.public_key_display}`);
+            
+            addLog('M1 SENT: Peer A → Peer B (SA Proposal, g^x, Nonce A)');
+            setUIState(1, 'M1 Sent: Peer A awaits response from Peer B.', 'Advance to M2');
+        }
+
+        // Message 2 (B -> A)
+        async function handleM2() {
+            addLog('Peer B: Received M1. Generating DH key, calculating Shared Secret...');
+
+            const data = await fetchData('step2_m2');
+            
+            updatePeerDisplay(peerB_elements, data);
+            addLog(`[B] DH Private Key generated (y): ${data.private_key_display}`);
+            addLog(`[B] DH Public Value computed (g^y): ${data.public_key_display}`);
+            addLog(`[B] Calculated Shared Secret (g^xy). Keys Derived (SKEYID_a): ${data.SKEYID_display}`);
+            addLog(`[B] AUTH HASH (H_B) calculated: ${data.auth_hash_b.substring(0, 16)}...`);
+
+            addLog('M2 SENT: Peer B → Peer A (SA Acceptance, g^y, Nonce B, Auth H_B)');
+            setUIState(2, 'M2 Received: Peer B sends authentication hash H_B.', 'Advance to M3');
+        }
+
+        // Message 3 (A -> B)
+        async function handleM3() {
+            addLog('Peer A: Received M2. Calculating Shared Secret and Verifying H_B...');
+
+            const data = await fetchData('step3_m3');
+
+            updatePeerDisplay(peerA_elements, data);
+            addLog(`[A] Calculated Shared Secret (g^xy). Keys Derived (SKEYID_a): ${data.SKEYID_display}`);
+            
+            // Verification result
+            addLog(`[A] VERIFICATION: Peer B Identity Check - ${data.verification_result}!`, data.verification_result !== "SUCCESS");
+            
+            if (data.verification_result === "SUCCESS") {
+                addLog(`[A] AUTH HASH (H_A) calculated: ${data.auth_hash_a.substring(0, 16)}...`);
+                addLog('M3 SENT: Peer A → Peer B (Authentication Hash H_A)');
+                setUIState(3, '<span style="color:var(--color-primary); font-weight:700;">IKE SA Established!</span>', 'Complete', true);
+            } else {
+                setUIState(0, '<span style="color:var(--color-secondary); font-weight:700;">Authentication Failed.</span>', 'Restart Handshake', false);
+            }
+        }
+
+
+        function initializeSimulation() {
+            // --- DOM Element Assignments (SAFELY done here after window load) ---
+            stepButton = document.getElementById('step-button');
+            resetButton = document.getElementById('reset-button');
+            consoleEl = document.getElementById('console');
+            statusText = document.getElementById('status-text');
+
+            peerA_elements = {
+                dhPrivate: document.getElementById('dh-private-a'),
+                dhPublic: document.getElementById('dh-public-a'),
+                ikeSaKey: document.getElementById('ike-sa-a')
+            };
+            peerB_elements = {
+                dhPrivate: document.getElementById('dh-private-b'),
+                dhPublic: document.getElementById('dh-public-b'),
+                ikeSaKey: document.getElementById('ike-sa-b')
+            };
+
+            msgArrows = {
+                1: document.getElementById('msg-1-arrow'),
+                2: document.getElementById('msg-2-arrow'),
+                3: document.getElementById('msg-3-arrow')
+            };
+
+            // Clear inputs and state
+            currentStep = 0;
+            if (consoleEl) consoleEl.innerHTML = '';
+            
+            peerA_elements.dhPrivate.value = '';
+            peerA_elements.dhPublic.value = '';
+            peerA_elements.ikeSaKey.value = '';
+            
+            peerB_elements.dhPrivate.value = '';
+            peerB_elements.dhPublic.value = '';
+            peerB_elements.ikeSaKey.value = '';
+            
+            addLog('IKE Protocol Virtual Lab initialized');
+            addLog('**STATUS:** Ready. Click "Start Handshake" to begin Phase 1.');
+            setUIState(0, 'Ready to initiate handshake', 'Start Handshake', false);
+
+            // --- Event Listeners (SAFELY attached here) ---
+            if (stepButton) stepButton.addEventListener('click', handleProtocolStep);
+            if (resetButton) resetButton.addEventListener('click', initializeSimulation);
+        }
+
+        // Initial setup on page load
+        window.onload = initializeSimulation;
+
+    </script>
+</body>
+</html>
